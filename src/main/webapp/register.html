@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>用户注册</title>
+    <!-- for-mobile-apps -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <!-- //for-mobile-apps -->
+    <link href="/css/style.css" rel="stylesheet" type="text/css" media="all"/>
+
+</head>
+<body>
+<!-- main -->
+<div class="main">
+    <h1>
+        用户注册
+    </h1>
+    <form name="login_form">
+        <input type="text" value="请输入用户名" id="username" name="username" onFocus="this.value = '';"
+               onBlur="if (this.value == '') {this.value = '请输入用户名';}"
+               required="">
+        <input style="margin-bottom: 0;" type="password" id="password1" name="password1" placeholder="请输入密码" onFocus="this.placeholder = ''; "
+               onBlur="if (this.value == '') {this.placeholder = '请输入密码';}"
+               required="">
+        <input type="password" id="password2" name="password2" placeholder="请再次输入密码" onFocus="this.placeholder = ''; "
+               onBlur="if (this.value == '') {this.placeholder = '请再次输入密码';}"
+               required="">
+        <input id="submit" value="注册" type="button" onclick="register()">
+    </form>
+</div>
+
+
+
+
+<!-- //main -->
+</body>
+<script src="/js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="/js/jquery.params.js"></script>
+
+<script>
+    function register() {
+        var type = $.query.get("type");
+        var username = document.getElementById('username').value;
+        var password = document.getElementById('password1').value;
+        var password2 = document.getElementById('password2').value;
+        if (password != password2) {
+            alert("两次输入的密码不一致")
+            return;
+        }
+
+        // 1.创建一个FormData对象，直接把我们的表单传进去
+        var formData = new FormData(document.forms.namedItem("login_form"));
+        formData.append("type",type);
+        // 2.通过jquery发送出去
+        $.ajax({
+            url: "/login/register",
+            type: "POST",
+            data: formData,
+            processData: false,  // 告诉jQuery不要去处理发送的数据
+            contentType: false   // 告诉jQuery不要去设置Content-Type请求头
+        }).done(function (date) {
+            if (date.success) {
+                alert("注册成功,请登录")
+                window.location.href = "/login/"+type;
+            } else {
+                alert(date.msg)
+            }
+        }).fail(function (date) {
+            alert('fail!')
+        });
+    }
+
+</script>
+</html>

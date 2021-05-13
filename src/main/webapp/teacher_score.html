@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+</head>
+<body>
+<table id="table_grid"></table>
+</body>
+<script src="/jquery.min.js"></script>
+<script src="/js/jquery-3.2.1.min.js"></script>
+<script src="/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="/js/jquery.params.js"></script>
+
+<script>
+    var username = $.query.get("username");
+
+    $(function () {
+
+        $('#table_grid').datagrid({
+            url: '/show/selectTeacher_score',
+            fitColumns: true,
+            queryParams: {
+                username: username
+            },
+            columns: [[
+                {field: 'personnel', title: '姓名', width: 100},
+                {field: 'time', title: '时间', width: 100},
+                {field: 'work', title: '工作量积分', width: 100},
+                {field: 'teaching_plan', title: '教案', width: 100},
+                {field: 'job', title: '作业', width: 100},
+                {field: 'teaching', title: '教研', width: 100},
+                {field: 'attendance', title: '考勤', width: 100},
+                {field: 'evaluation', title: '评教', width: 100},
+                {field: 'exam', title: '文化考试', width: 100},
+                {field: 'mentality', title: '大局意识', width: 100},
+                {field: 'award', title: '管理人员奖励', width: 100},
+                {field: 'performance', title: '教学成绩', width: 100},
+                {field: 'bonus_point', title: '奖励加分', width: 100},
+                {field: 'sum', title: '总计', width: 100}
+            ]],
+            onLoadSuccess: function (data) {
+                JSON.stringify(data)
+                if (data.total == 0) {
+                    alert("当前用户无记录")
+                }
+            }
+        });
+
+    })
+
+
+</script>
+</html>

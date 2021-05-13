@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/css/layui.css" media="all">
+    <script src="/js/laydate.js"></script> <!-- 改成你的路径 -->
+
+</head>
+<style>
+    .layui-table td, .layui-table th {
+        text-align: center;
+    }
+
+    .layui-elem-field legend {
+        color: #6d6dff;
+        font-weight: 500;
+    }
+</style>
+<body>
+
+<div class="layui-inline" style="margin-top: 30px">
+    <label class="layui-form-label">请选择月份</label>
+    <div class="layui-input-inline">
+        <input type="text" class="layui-input" id="time" placeholder="请选择时间">
+    </div>
+</div>
+
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px; text-align: center">
+    <legend>工资详情</legend>
+</fieldset>
+
+
+<div class="layui-form">
+    <table class="layui-table">
+        <thead>
+        <tr>
+            <th>姓名</th>
+
+            <th>工资总额</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr>
+            <td id="name">xxx</td>
+
+            <td id="money">0</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;text-align: center">
+    <legend id="salary_money">工资总额：0元</legend>
+</fieldset>
+
+<div class="layui-form">
+    <table  class="layui-table">
+        <thead>
+        <tr>
+            <th>科室</th>
+            <th>年级类型</th>
+            <th>年级金额</th>
+            <th>白班</th>
+            <th>夜班</th>
+            <th>小测</th>
+            <th>导师制</th>
+            <th>过卡</th>
+            <th>早读</th>
+            <th>各年级部自筹绩效</th>
+            <th>教研绩效</th>
+            <th>月考绩效</th>
+            <th>期末绩效</th>
+            <th>取暖补助</th>
+            <th>高考奖金</th>
+            <th>教师节奖励</th>
+            <th>扶贫下乡</th>
+            <th>三民一促</th>
+            <th>教师职称绩效</th>
+            <th>时间</th>
+            <th>合计</th>
+        </tr>
+        </thead>
+        <tbody id="salary"></tbody>
+    </table>
+</div>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;text-align: center">
+    <legend id="other_money">加班总计：</legend>
+</fieldset>
+<div class="layui-form">
+    <table  class="layui-table">
+        <thead>
+        <tr>
+            <th>类型</th>
+            <th>金额</th>
+            <th>加班时间</th>
+        </tr>
+        </thead>
+        <tbody id="other">
+
+        </tbody>
+    </table>
+</div>
+<script src="/js/jquery-3.2.1.min.js" charset="utf-8"></script>
+<script src="/js/layui.js" charset="utf-8"></script>
+<script type="text/javascript" src="/js/jquery.params.js"></script>
+
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    var username = $.query.get("username");
+
+    laydate.render({
+        elem: '#time' //指定元素
+        , type: 'month'
+        , done: function (value, date, endDate) {
+            initData(value+"-01");
+        }
+    });
+
+    //在页面未加载完毕之前显示的loading Html自定义内容
+    var _LoadingHtml = '<div id="loadingDiv" style="display: none; "><div id="over" style=" position: absolute;top: 0;left: 0; width: 100%;height: 100%; background-color: #f5f5f5;opacity:0.5;z-index: 1000;"></div><div id="layout" style="position: absolute;top: 40%; left: 40%;width: 20%; height: 20%;  z-index: 1001;text-align:center;"><img style="width: 36px;height: 36px" src="/css/loading.gif" /></div></div>';
+    //呈现loading效果
+    document.write(_LoadingHtml);
+
+    //移除loading效果
+    function completeLoading() {
+        document.getElementById("loadingDiv").style.display = "none";
+    }
+
+    //展示loading效果
+    function showLoading() {
+        document.getElementById("loadingDiv").style.display = "block";
+    }
+
+    $(function () {
+        let time = new Date();
+        let month = time.getMonth()+1;
+        let fullYear = time.getFullYear();
+        let day = time.getDay();
+        if (month<10){
+            month="0"+month
+        }
+        $("#time").val(fullYear+"-"+(month));
+        initData(fullYear+"-"+(month)+"-"+day)
+    })
+
+    function initData(date) {
+        $.ajax({
+            url: '/show/selectSalary',
+            type: 'POST',
+            data: {"username": username, "date": date},
+            beforeSend: showLoading,
+            success: function (data) {
+                completeLoading()
+                if (data.success) {
+                    $("#salary_money").html("基本工资合计：" + data.object2.money_salary)
+                    $("#other_money").html("加班合计：" + data.object2.money_other)
+                    $("#money").html(data.object2.money_all)
+                    appendSalary(data.object);
+                    appendOther(data.object1);
+                    appendUser(data.object3);
+                }
+            },
+            error: function (data) {
+
+            }
+        })
+    }
+
+    function appendSalary(data) {
+        var html = "";
+        for (var i = 0; i < data.length; i++) {
+            html +=
+                "            <tr>\n" +
+                "<th>" + data[i].administrative_office + "</th>" +
+                "<th>" + data[i].grade_type + "</th>" +
+                "<th>" + data[i].grade_money + "</th>" +
+                "<th>" + data[i].day_shift + "</th>" +
+                "<th>" + data[i].night_shift + "</th>" +
+                "<th>" + data[i].test + "</th>" +
+                "<th>" + data[i].tutor + "</th>" +
+                "<th>" + data[i].pass_card + "</th>" +
+                "<th>" + data[i].read + "</th>" +
+                "<th>" + data[i].self_performance + "</th>" +
+                "<th>" + data[i].teacher_performance + "</th>" +
+                "<th>" + data[i].monthly_test_performance + "</th>" +
+                "<th>" + data[i].final_performance + "</th>" +
+                "<th>" + data[i].heating_subsidy + "</th>" +
+                "<th>" + data[i].bonus + "</th>" +
+                "<th>" + data[i].award + "</th>" +
+                "<th>" + data[i].help_poor + "</th>" +
+                "<th>" + data[i].people + "</th>" +
+                "<th>" + data[i].title_performance + "</th>" +
+                "<th>" + data[i].create_time + "</th>" +
+                "<th>" + data[i].total + "</th>" +
+                "            </tr>\n";
+        }
+        $("#salary").html(html);
+    }
+
+    function appendUser(data) {
+        $("#name").html(data.personnel)
+    }
+
+    function appendOther(data) {
+        var html = "";
+        for (var i = 0; i < data.length; i++) {
+            if(data[i].time==null){
+                html +=
+                    "            <tr>\n" +
+                    "<th>" + data[i].xtype + "</th>" +
+                    "<th>" + data[i].money + "</th>" +
+                    "<th>时间没有填写</th>" +
+                    "            </tr>\n";
+            }else {
+                html +=
+                    "            <tr>\n" +
+                    "<th>" + data[i].xtype + "</th>" +
+                    "<th>" + data[i].money + "</th>" +
+                    "<th>" + data[i].time + "</th>" +
+                    "            </tr>\n";
+            }
+        }
+        $("#other").html(html);
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+wxyz = jdbc:mysql://1.117.90.173:3306/wxyz?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+user=root
+password=123456
+devMode=false
+
+
+

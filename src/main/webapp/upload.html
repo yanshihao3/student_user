@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>上传excel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="../../themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../themes/icon.css">
+    <script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="/js/js_utils.js"></script>
+    <script type="text/javascript" src="/js/jquery.params.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+    <style>
+        .datagrid-mask-msg {
+            position: absolute;
+            top: 50%;
+            margin-top: -20px;
+            padding: 10px 5px 10px 30px;
+            width: auto;
+            height: 45px;
+            border-width: 2px;
+            border-style: solid;
+            display: none;}
+
+    </style>
+</head>
+
+<body>
+
+<div align="center" style="margin-top: 20px">
+    <a> Excel文件上传解析，文件大小不超过100Mb</a>
+</div>
+
+<div align="center" style="margin-top: 20px">
+    <form id="form" enctype="multipart/form-data" method="post">
+        <input style="width: auto;height: 20px" type="file" name="file"/> <br/>
+        <input style="margin-top:20px;padding:5px 2px;" type="button" onclick="upload()" value="上传"/>
+    </form>
+</div>
+<div id="textboxDiv"></div>
+<script>
+
+
+    function upload() {
+        var type = $.query.get("type");
+        var formdata = new FormData($("#form")[0]);
+        formdata.append("type", type)
+        $.ajax({
+            url: '/upload/upload',
+            type: 'POST',
+            data: formdata,
+            processData: false,
+            contentType: false,
+            beforeSend: ajaxLoading,
+            success: function (data) {
+                ajaxLoadEnd();
+                alert(data.msg)
+                /*$.messager.show({
+                    msg: data.msg,
+                    width: 150,
+                    height: 300,
+                    showType: 'show'
+                });*/
+            },
+            error: function (data) {
+                ajaxLoadEnd()
+                alert("出错了")
+                /*$.messager.show({
+                    msg: '出错了',
+                    width: 150,
+                    height: 300,
+                    showType: 'show'
+                });*/
+            }
+        })
+    }
+
+
+</script>
+
+</body>
+
+</html>
